@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ROOT // TERMINAL</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&display=swap');
@@ -10,141 +10,126 @@
         :root {
             --bg: #000000;
             --text: #ffffff;
-            --dim: #555555;
-            --glitch-line: rgba(255, 255, 255, 0.1);
+            --dim: #444444;
         }
 
-        * { box-sizing: border-box; cursor: crosshair; }
+        /* Reset & Full Screen */
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-        body {
+        html, body {
             background-color: var(--bg);
             color: var(--text);
             font-family: 'Courier Prime', monospace;
             margin: 0;
-            padding: 20px;
+            padding: 0;
+            width: 100%;
+            height: 100dvh; /* Hauteur totale dynamique */
+            overflow: hidden; /* Pas de scroll */
             display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            line-height: 1.2;
-            overflow-x: hidden;
+            align-items: center; /* Centrage vertical PC/Mobile */
+            justify-content: center; /* Centrage horizontal PC/Mobile */
+            text-transform: uppercase;
         }
 
-        /* Écran de chargement */
-        #loader {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: #000;
-            z-index: 100;
-            padding: 20px;
-            font-size: 0.8rem;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* Scanline Y2K */
+        /* Effet scanline Y2K */
         .scanline {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(to bottom, transparent 50%, rgba(255, 255, 255, 0.02) 50%);
+            background: linear-gradient(to bottom, transparent 50%, rgba(255, 255, 255, 0.01) 50%);
             background-size: 100% 4px;
             pointer-events: none;
-            z-index: 50;
+            z-index: 999;
         }
 
-        .container {
-            max-width: 500px;
+        /* LOADER : Toujours en haut à gauche */
+        #loader {
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
-            margin: 0 auto;
-            display: none; /* Caché pendant le chargement */
+            height: 100%;
+            background: #000;
+            z-index: 1000;
+            padding: 20px;
+            font-size: 0.75rem;
+            color: var(--text);
         }
 
-        header {
-            border-bottom: 1px double var(--dim);
-            padding-bottom: 20px;
-            margin-bottom: 30px;
+        /* CONTENEUR : Centré au milieu de l'écran */
+        .container {
+            width: 90%;
+            max-width: 450px; /* Taille idéale sur PC */
+            display: none; /* Masqué au début */
+            text-align: center;
+            animation: boot 0.4s ease-out;
         }
+
+        @keyframes boot {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        header { margin-bottom: 40px; }
 
         .ascii-art {
-            font-size: 6px;
-            line-height: 5px;
+            font-size: 8px;
+            line-height: 8px;
             white-space: pre;
+            color: var(--text);
+            display: inline-block;
             margin-bottom: 20px;
-            color: var(--dim);
         }
 
         h1 {
             font-size: 1.2rem;
-            margin: 0;
-            font-weight: 700;
+            letter-spacing: 4px;
+            margin: 10px 0;
+            border: 1px solid var(--text);
+            padding: 10px;
+            display: inline-block;
         }
 
         .metadata {
-            font-size: 0.7rem;
+            font-size: 0.6rem;
             color: var(--dim);
-            margin-top: 5px;
+            margin-top: 10px;
         }
 
-        /* Liens style Terminal */
+        /* Liens cliquables "propres" */
         .nav-links {
             display: flex;
             flex-direction: column;
             gap: 15px;
+            margin: 40px 0;
         }
 
         .nav-item {
-            display: flex;
-            align-items: center;
             text-decoration: none;
             color: var(--text);
             font-size: 0.9rem;
+            padding: 18px;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.02);
             transition: all 0.2s;
+            position: relative;
         }
 
-        .nav-item::before {
-            content: "[ ]";
-            margin-right: 15px;
-            color: var(--dim);
+        /* Effet hover PC & Active Mobile */
+        .nav-item:hover, .nav-item:active {
+            background: var(--text);
+            color: var(--bg);
+            font-weight: bold;
         }
 
-        .nav-item:hover::before {
-            content: "[X]";
-            color: var(--text);
-        }
-
-        .nav-item:hover {
-            padding-left: 10px;
-            background: #111;
-        }
-
-        .nav-item .label {
-            border-bottom: 1px solid transparent;
-        }
-
-        .nav-item:hover .label {
-            border-bottom: 1px solid var(--text);
-        }
-
-        /* Footer */
         footer {
-            margin-top: auto;
-            padding-top: 40px;
-            font-size: 0.7rem;
+            font-size: 0.6rem;
             color: var(--dim);
+            letter-spacing: 2px;
         }
 
-        .blink {
-            animation: blinker 1s step-start infinite;
-        }
+        .blink { animation: blink 0.8s step-start infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
 
-        @keyframes blinker {
-            50% { opacity: 0; }
-        }
-
-        /* Adaptation Mobile */
-        @media (max-width: 480px) {
-            body { padding: 15px; }
-            h1 { font-size: 1rem; }
-        }
     </style>
 </head>
 <body>
@@ -152,7 +137,7 @@
     <div class="scanline"></div>
 
     <div id="loader">
-        <div id="loading-text"></div>
+        <div id="logs"></div>
     </div>
 
     <div class="container" id="main-content">
@@ -161,72 +146,52 @@
 /_  __/ __/ _ \/  |/  /  _/ |/ / _ | / / 
  / / / _// , _/ /|_/ // //    / __ |/ /__
 /_/ /___/_/|_/_/  /_/___/_/|_/_/ |_/____/
-                                         </div>
+                                         </div><br>
             <h1>+QTKISS+.SYS</h1>
-            <div class="metadata">LOC: TOULOUSE // OS: Y2K_EVO // ARCHIVE: 2026</div>
+            <div class="metadata">PROJECT_01 // 2026 // ARCHIVE_01</div>
         </header>
 
-        <main>
-            <div style="margin-bottom: 25px; font-size: 0.8rem; color: var(--dim);">
-                > SELECT_PATH:
-            </div>
-            
-            <nav class="nav-links">
-                <a href="https://instagram.com" class="nav-item">
-                    <span class="label">01. INSTAGRAM</span>
-                </a>
-                <a href="#" class="nav-item">
-                    <span class="label">02. LOOKBOOK_26</span>
-                </a>
-                <a href="#" class="nav-item">
-                    <span class="label">03. SOUND_ARCHIVE</span>
-                </a>
-                <a href="#" class="nav-item">
-                    <span class="label">04. DIRECT_CONTACT</span>
-                </a>
-            </nav>
-        </main>
+        <nav class="nav-links">
+            <a href="https://instagram.com/ton_pseudo" class="nav-item">01_INSTAGRAM</a>
+            <a href="#" class="nav-item">02_LOOKBOOK</a>
+            <a href="#" class="nav-item">03_SOUNDCLOUD</a>
+            <a href="#" class="nav-item">04_DIRECT_ACCESS</a>
+        </nav>
 
         <footer>
-            <p>> SYSTEM STATUS: <span style="color: #fff;">READY</span></p>
-            <p>> CONNECTION: ENCRYPTED</p>
-            <p>> (C) 2026 ALL_RIGHTS_RESERVED <span class="blink">_</span></p>
+            > SYSTEM_STATUS: OK<br>
+            > (C) ALL RIGHTS RESERVED <span class="blink">_</span>
         </footer>
     </div>
 
     <script>
-        // Séquence de boot
-        const logs = [
-            "> INITIALIZING BOOT SEQUENCE...",
-            "> LOADING KERNEL...",
-            "> ESTABLISHING SECURE CONNECTION...",
-            "> LOADING ASSETS...",
-            "> DECRYPTING ARCHIVES...",
+        const logData = [
+            "> MOUNTING DRIVE...",
+            "> LOADING SYSTEM_CORE...",
+            "> ENCRYPTING CONNECTION...",
             "> ACCESS GRANTED."
         ];
 
-        let i = 0;
-        const loader = document.getElementById('loader');
-        const loadingText = document.getElementById('loading-text');
-        const mainContent = document.getElementById('main-content');
+        let line = 0;
+        const logsDiv = document.getElementById('logs');
 
-        function typeLog() {
-            if (i < logs.length) {
+        function startLoading() {
+            if (line < logData.length) {
                 const p = document.createElement('div');
-                p.style.marginBottom = '5px';
-                p.textContent = logs[i];
-                loadingText.appendChild(p);
-                i++;
-                setTimeout(typeLog, Math.random() * 400 + 200);
+                p.style.marginBottom = "5px";
+                p.textContent = logData[line];
+                logsDiv.appendChild(p);
+                line++;
+                setTimeout(startLoading, 350);
             } else {
                 setTimeout(() => {
-                    loader.style.display = 'none';
-                    mainContent.style.display = 'block';
+                    document.getElementById('loader').style.display = 'none';
+                    document.getElementById('main-content').style.display = 'block';
                 }, 500);
             }
         }
 
-        window.onload = typeLog;
+        window.onload = startLoading;
     </script>
 </body>
 </html>
