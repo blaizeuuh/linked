@@ -11,6 +11,8 @@
             --bg: #000000;
             --text: #ffffff;
             --dim: #444444;
+            --glitch-red: rgba(255, 0, 0, 0.7);
+            --glitch-blue: rgba(0, 255, 255, 0.7);
         }
 
         /* Reset & Full Screen */
@@ -23,43 +25,64 @@
             margin: 0;
             padding: 0;
             width: 100%;
-            height: 100dvh; /* Hauteur totale dynamique */
-            overflow: hidden; /* Pas de scroll */
+            height: 100dvh;
+            overflow: hidden;
             display: flex;
-            align-items: center; /* Centrage vertical PC/Mobile */
-            justify-content: center; /* Centrage horizontal PC/Mobile */
+            align-items: center;
+            justify-content: center;
             text-transform: uppercase;
+            /* SCINTILLEMENT CRT GLOBAL */
+            animation: globalFlicker 15s infinite;
         }
 
-        /* Effet scanline Y2K */
+        /* --- KEYFRAMES --- */
+
+        @keyframes globalFlicker {
+            0% { opacity: 1; }
+            95% { opacity: 1; transform: scale(1); }
+            96% { opacity: 0.8; transform: scale(1.001); }
+            97% { opacity: 1; }
+            98% { opacity: 0.9; }
+            100% { opacity: 1; }
+        }
+
+        @keyframes typing {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+
+        @keyframes ghosting {
+            0%, 100% { text-shadow: 0 0 0 transparent; }
+            50% { text-shadow: 2px 0px 8px rgba(255,255,255,0.2), -2px 0px 8px rgba(255,255,255,0.2); }
+        }
+
+        @keyframes scanMove {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(100vh); }
+        }
+
+        /* --- STYLES --- */
+
         .scanline {
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(to bottom, transparent 50%, rgba(255, 255, 255, 0.01) 50%);
-            background-size: 100% 4px;
+            top: 0; left: 0; width: 100%; height: 2px;
+            background: rgba(255, 255, 255, 0.05);
             pointer-events: none;
             z-index: 999;
+            animation: scanMove 8s linear infinite;
         }
 
-        /* LOADER : Toujours en haut à gauche */
         #loader {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #000;
-            z-index: 1000;
-            padding: 20px;
-            font-size: 0.75rem;
-            color: var(--text);
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; z-index: 1000;
+            padding: 20px; font-size: 0.75rem; color: var(--text);
         }
 
-        /* CONTENEUR : Centré au milieu de l'écran */
         .container {
             width: 90%;
-            max-width: 450px; /* Taille idéale sur PC */
-            display: none; /* Masqué au début */
+            max-width: 450px;
+            display: none;
             text-align: center;
             animation: boot 0.4s ease-out;
         }
@@ -72,62 +95,50 @@
         header { margin-bottom: 40px; }
 
         .ascii-art {
-            font-size: 8px;
-            line-height: 8px;
-            white-space: pre;
-            color: var(--text);
-            display: inline-block;
-            margin-bottom: 20px;
+            font-size: 8px; line-height: 8px; white-space: pre;
+            color: var(--text); display: inline-block; margin-bottom: 20px;
+            animation: ghosting 6s infinite ease-in-out;
         }
 
         h1 {
-            font-size: 1.2rem;
-            letter-spacing: 4px;
-            margin: 10px 0;
+            font-size: 1.2rem; letter-spacing: 4px; margin: 10px 0;
+            padding: 10px; display: inline-block;
+            position: relative;
+            /* Bordure fixe comme demandé */
             border: 1px solid var(--text);
-            padding: 10px;
-            display: inline-block;
         }
 
         .metadata {
-            font-size: 0.6rem;
-            color: var(--dim);
-            margin-top: 10px;
+            font-size: 0.6rem; color: var(--dim); margin-top: 10px;
+            display: inline-block; overflow: hidden; white-space: nowrap;
+            width: 0;
         }
 
-        /* Liens cliquables "propres" */
-        .nav-links {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            margin: 40px 0;
+        .container[style*="display: block"] .metadata {
+            animation: typing 1.5s steps(30, end) forwards;
+            animation-delay: 1s;
         }
+
+        .nav-links { display: flex; flex-direction: column; gap: 15px; margin: 40px 0; }
 
         .nav-item {
-            text-decoration: none;
-            color: var(--text);
-            font-size: 0.9rem;
-            padding: 18px;
-            border: 1px solid rgba(255,255,255,0.1);
-            background: rgba(255,255,255,0.02);
-            transition: all 0.2s;
+            text-decoration: none; color: var(--text); font-size: 0.9rem;
+            padding: 18px; border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.02); transition: all 0.1s;
             position: relative;
         }
 
-        /* Effet hover PC & Active Mobile */
-        .nav-item:hover, .nav-item:active {
-            background: var(--text);
-            color: var(--bg);
-            font-weight: bold;
+        .nav-item:active {
+            background: var(--text); color: var(--bg);
+            text-shadow: 2px 0 var(--glitch-red), -2px 0 var(--glitch-blue);
+            transform: scale(0.98);
         }
 
-        footer {
-            font-size: 0.6rem;
-            color: var(--dim);
-            letter-spacing: 2px;
-        }
+        .nav-item:hover { background: var(--text); color: var(--bg); font-weight: bold; }
 
-        .blink { animation: blink 0.8s step-start infinite; }
+        footer { font-size: 0.6rem; color: var(--dim); letter-spacing: 2px; }
+
+        .cursor { display: inline-block; width: 8px; height: 12px; background: var(--dim); margin-left: 5px; animation: blink 0.8s step-start infinite; }
         @keyframes blink { 50% { opacity: 0; } }
 
     </style>
@@ -142,12 +153,12 @@
 
     <div class="container" id="main-content">
         <header>
-            <div class="ascii-art"> _____________  __  ________  _____   __ 
+            <div class="ascii-art"> _____________  __  ________  _____  __ 
 /_  __/ __/ _ \/  |/  /  _/ |/ / _ | / / 
  / / / _// , _/ /|_/ // //    / __ |/ /__
 /_/ /___/_/|_/_/  /_/___/_/|_/_/ |_/____/
                                          </div><br>
-            <h1>+QTKISS+.SYS</h1>
+            <h1>+QTKISS+.SYS</h1><br>
             <div class="metadata">PROJECT_01 // 2026 // ARCHIVE_01</div>
         </header>
 
@@ -160,7 +171,7 @@
 
         <footer>
             > SYSTEM_STATUS: OK<br>
-            > (C) ALL RIGHTS RESERVED <span class="blink">_</span>
+            > (C) ALL RIGHTS RESERVED <span class="cursor"></span>
         </footer>
     </div>
 
