@@ -15,7 +15,7 @@
             --glitch-blue: rgba(0, 255, 255, 0.7);
         }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
 
         html, body {
             background-color: var(--bg);
@@ -37,36 +37,39 @@
             96% { opacity: 0.8; transform: scale(1.001); }
             98% { opacity: 0.9; }
         }
-
         @keyframes typing { from { width: 0; } to { width: 100%; } }
-
         @keyframes ghosting {
             0%, 100% { text-shadow: 0 0 0 transparent; }
             50% { text-shadow: 2px 0px 8px rgba(255,255,255,0.2), -2px 0px 8px rgba(255,255,255,0.2); }
         }
-
         @keyframes starRotate { 0% { transform: rotateY(0deg); } 100% { transform: rotateY(360deg); } }
+        @keyframes soundBar { 0%, 100% { height: 4px; } 50% { height: 20px; } }
+        @keyframes blink { 50% { opacity: 0; } }
 
-        @keyframes soundBar {
-            0%, 100% { height: 4px; }
-            50% { height: 20px; }
+        /* --- UI ELEMENTS --- */
+        .status-bar {
+            position: fixed; top: 0; left: 0; width: 100%;
+            padding: 10px 20px; display: none; justify-content: space-between;
+            font-size: 0.55rem; color: var(--dim); letter-spacing: 1px; z-index: 998;
         }
 
-        /* --- UI ELEMENTS FIXES --- */
-        .status-bar {
-            position: fixed; /* Fixé par rapport à l'écran, pas au contenu */
-            top: 0; left: 0; width: 100%;
-            padding: 10px 20px; 
-            display: none; /* Masqué pendant le loading */
-            justify-content: space-between;
-            font-size: 0.55rem; color: var(--dim); letter-spacing: 1px;
-            z-index: 998;
+        .audio-control {
+            position: fixed; top: 40px; right: 20px;
+            font-size: 0.55rem; color: var(--dim); cursor: pointer;
+            z-index: 999; border: 1px solid var(--dim);
+            padding: 5px 8px; display: none; transition: 0.2s;
         }
 
         #loader {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #000; z-index: 1000;
-            padding: 20px; font-size: 0.75rem; color: var(--text);
+            padding: 30px; font-size: 0.75rem; color: var(--text);
+            display: flex; flex-direction: column; justify-content: center;
+        }
+
+        #boot-msg {
+            text-align: center; font-size: 0.8rem;
+            animation: blink 1s infinite;
         }
 
         .container {
@@ -77,8 +80,7 @@
 
         @keyframes boot { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
 
-        header { margin-bottom: 30px; }
-
+        header { margin-bottom: 25px; }
         .ascii-art {
             font-size: 7px; line-height: 7px; white-space: pre;
             color: var(--text); display: inline-block; margin-bottom: 15px;
@@ -95,29 +97,19 @@
             display: inline-block; overflow: hidden; white-space: nowrap; width: 0;
         }
 
-        /* Typewriter */
         .container[style*="display: block"] .metadata {
             animation: typing 1.5s steps(30, end) forwards; animation-delay: 0.8s;
         }
 
-        .nav-links { display: flex; flex-direction: column; gap: 12px; margin: 30px 0; }
-
+        .nav-links { display: flex; flex-direction: column; gap: 12px; margin: 25px 0; }
         .nav-item {
             text-decoration: none; color: var(--text); font-size: 0.85rem;
             padding: 16px; border: 1px solid rgba(255,255,255,0.1);
             background: rgba(255,255,255,0.02); transition: all 0.1s;
         }
+        .nav-item:active { background: var(--text); color: var(--bg); text-shadow: 2px 0 var(--glitch-red), -2px 0 var(--glitch-blue); }
 
-        .nav-item:active {
-            background: var(--text); color: var(--bg);
-            text-shadow: 2px 0 var(--glitch-red), -2px 0 var(--glitch-blue);
-        }
-
-        .star-section {
-            display: flex; align-items: center; justify-content: center;
-            gap: 15px; margin: 15px 0;
-        }
-
+        .star-section { display: flex; align-items: center; justify-content: center; gap: 15px; margin: 15px 0; }
         .visualizer { display: flex; align-items: flex-end; gap: 3px; height: 20px; }
         .bar { width: 3px; background: var(--dim); animation: soundBar 0.5s infinite ease-in-out; }
         .bar:nth-child(2) { animation-delay: 0.1s; }
@@ -132,7 +124,6 @@
 
         footer { font-size: 0.55rem; color: var(--dim); letter-spacing: 2px; }
         .cursor { display: inline-block; width: 8px; height: 12px; background: var(--dim); margin-left: 5px; animation: blink 0.8s step-start infinite; }
-        @keyframes blink { 50% { opacity: 0; } }
 
     </style>
 </head>
@@ -144,7 +135,16 @@
         <span>BATTERY: 98%</span>
     </div>
 
+    <div class="audio-control" id="audio-btn">
+        <span id="speaker-icon">🔊</span> SOUND: <span id="sound-status">ON</span>
+    </div>
+
+    <audio id="bg-audio" loop>
+        <source src="adhd.mp3" type="audio/mpeg">
+    </audio>
+
     <div id="loader">
+        <div id="boot-msg">> [ CLICK_TO_INITIALIZE_SYSTEM ]</div>
         <div id="logs"></div>
     </div>
 
@@ -183,26 +183,30 @@
     </div>
 
     <script>
-        function updateClock() {
-            const now = new Date();
-            document.getElementById('clock').textContent = now.getHours().toString().padStart(2, '0') + ":" + 
-                         now.getMinutes().toString().padStart(2, '0') + ":" + 
-                         now.getSeconds().toString().padStart(2, '0');
-        }
-        setInterval(updateClock, 1000);
-        updateClock();
-
+        const audio = document.getElementById('bg-audio');
+        const audioBtn = document.getElementById('audio-btn');
+        const soundStatus = document.getElementById('sound-status');
+        const speakerIcon = document.getElementById('speaker-icon');
+        const logsDiv = document.getElementById('logs');
+        const bootMsg = document.getElementById('boot-msg');
+        
+        let line = 0;
         const logData = [
             "> MOUNTING DRIVE...",
             "> LOADING SYSTEM_CORE...",
-            "> CHECKING NAVIGATOR...",
-            "> GETTING LINKS...",
             "> ENCRYPTING CONNECTION...",
             "> ACCESS GRANTED."
         ];
 
-        let line = 0;
-        const logsDiv = document.getElementById('logs');
+        // Lancement du loader ET de la musique
+        window.addEventListener('click', () => {
+            if (line === 0) {
+                bootMsg.style.display = 'none';
+                audio.play().catch(e => console.log("Audio blocké"));
+                updateSoundUI(true);
+                startLoading();
+            }
+        }, { once: true });
 
         function startLoading() {
             if (line < logData.length) {
@@ -217,10 +221,38 @@
                     document.getElementById('loader').style.display = 'none';
                     document.getElementById('main-content').style.display = 'block';
                     document.getElementById('status-ui').style.display = 'flex';
+                    document.getElementById('audio-btn').style.display = 'block';
                 }, 500);
             }
         }
-        window.onload = startLoading;
+
+        audioBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (audio.paused) {
+                audio.play();
+                updateSoundUI(true);
+            } else {
+                audio.pause();
+                updateSoundUI(false);
+            }
+        });
+
+        function updateSoundUI(isPlaying) {
+            soundStatus.textContent = isPlaying ? "ON" : "OFF";
+            speakerIcon.textContent = isPlaying ? "🔊" : "🔇";
+            audioBtn.style.color = isPlaying ? "var(--text)" : "var(--dim)";
+            audioBtn.style.borderColor = isPlaying ? "var(--text)" : "var(--dim)";
+        }
+
+        function updateClock() {
+            const now = new Date();
+            const time = now.getHours().toString().padStart(2, '0') + ":" + 
+                         now.getMinutes().toString().padStart(2, '0') + ":" + 
+                         now.getSeconds().toString().padStart(2, '0');
+            document.getElementById('clock').textContent = time;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
     </script>
 </body>
 </html>
