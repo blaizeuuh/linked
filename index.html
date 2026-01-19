@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>ROOT // TERMINAL</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&display=swap');
+
+        :root {
+            --bg: #000000;
+            --text: #ffffff;
+            --dim: #555555;
+            --glitch-line: rgba(255, 255, 255, 0.1);
+        }
+
+        * { box-sizing: border-box; cursor: crosshair; }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Courier Prime', monospace;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            line-height: 1.2;
+            overflow-x: hidden;
+        }
+
+        /* Écran de chargement */
+        #loader {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #000;
+            z-index: 100;
+            padding: 20px;
+            font-size: 0.8rem;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Scanline Y2K */
+        .scanline {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to bottom, transparent 50%, rgba(255, 255, 255, 0.02) 50%);
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 50;
+        }
+
+        .container {
+            max-width: 500px;
+            width: 100%;
+            margin: 0 auto;
+            display: none; /* Caché pendant le chargement */
+        }
+
+        header {
+            border-bottom: 1px double var(--dim);
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        .ascii-art {
+            font-size: 6px;
+            line-height: 5px;
+            white-space: pre;
+            margin-bottom: 20px;
+            color: var(--dim);
+        }
+
+        h1 {
+            font-size: 1.2rem;
+            margin: 0;
+            font-weight: 700;
+        }
+
+        .metadata {
+            font-size: 0.7rem;
+            color: var(--dim);
+            margin-top: 5px;
+        }
+
+        /* Liens style Terminal */
+        .nav-links {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: var(--text);
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .nav-item::before {
+            content: "[ ]";
+            margin-right: 15px;
+            color: var(--dim);
+        }
+
+        .nav-item:hover::before {
+            content: "[X]";
+            color: var(--text);
+        }
+
+        .nav-item:hover {
+            padding-left: 10px;
+            background: #111;
+        }
+
+        .nav-item .label {
+            border-bottom: 1px solid transparent;
+        }
+
+        .nav-item:hover .label {
+            border-bottom: 1px solid var(--text);
+        }
+
+        /* Footer */
+        footer {
+            margin-top: auto;
+            padding-top: 40px;
+            font-size: 0.7rem;
+            color: var(--dim);
+        }
+
+        .blink {
+            animation: blinker 1s step-start infinite;
+        }
+
+        @keyframes blinker {
+            50% { opacity: 0; }
+        }
+
+        /* Adaptation Mobile */
+        @media (max-width: 480px) {
+            body { padding: 15px; }
+            h1 { font-size: 1rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="scanline"></div>
+
+    <div id="loader">
+        <div id="loading-text"></div>
+    </div>
+
+    <div class="container" id="main-content">
+        <header>
+            <div class="ascii-art"> _____________  __  ________  _____   __ 
+/_  __/ __/ _ \/  |/  /  _/ |/ / _ | / / 
+ / / / _// , _/ /|_/ // //    / __ |/ /__
+/_/ /___/_/|_/_/  /_/___/_/|_/_/ |_/____/
+                                         </div>
+            <h1>+QTKISS+.SYS</h1>
+            <div class="metadata">LOC: TOULOUSE // OS: Y2K_EVO // ARCHIVE: 2026</div>
+        </header>
+
+        <main>
+            <div style="margin-bottom: 25px; font-size: 0.8rem; color: var(--dim);">
+                > SELECT_PATH:
+            </div>
+            
+            <nav class="nav-links">
+                <a href="https://instagram.com" class="nav-item">
+                    <span class="label">01. INSTAGRAM</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <span class="label">02. LOOKBOOK_26</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <span class="label">03. SOUND_ARCHIVE</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <span class="label">04. DIRECT_CONTACT</span>
+                </a>
+            </nav>
+        </main>
+
+        <footer>
+            <p>> SYSTEM STATUS: <span style="color: #fff;">READY</span></p>
+            <p>> CONNECTION: ENCRYPTED</p>
+            <p>> (C) 2026 ALL_RIGHTS_RESERVED <span class="blink">_</span></p>
+        </footer>
+    </div>
+
+    <script>
+        // Séquence de boot
+        const logs = [
+            "> INITIALIZING BOOT SEQUENCE...",
+            "> LOADING KERNEL...",
+            "> ESTABLISHING SECURE CONNECTION...",
+            "> LOADING ASSETS...",
+            "> DECRYPTING ARCHIVES...",
+            "> ACCESS GRANTED."
+        ];
+
+        let i = 0;
+        const loader = document.getElementById('loader');
+        const loadingText = document.getElementById('loading-text');
+        const mainContent = document.getElementById('main-content');
+
+        function typeLog() {
+            if (i < logs.length) {
+                const p = document.createElement('div');
+                p.style.marginBottom = '5px';
+                p.textContent = logs[i];
+                loadingText.appendChild(p);
+                i++;
+                setTimeout(typeLog, Math.random() * 400 + 200);
+            } else {
+                setTimeout(() => {
+                    loader.style.display = 'none';
+                    mainContent.style.display = 'block';
+                }, 500);
+            }
+        }
+
+        window.onload = typeLog;
+    </script>
+</body>
+</html>
