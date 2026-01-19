@@ -56,6 +56,12 @@
             50% { text-shadow: 2px 0px 8px rgba(255,255,255,0.2), -2px 0px 8px rgba(255,255,255,0.2); }
         }
 
+        /* L'animation de rotation 3D */
+        @keyframes starRotate {
+            0% { transform: rotateY(0deg); }
+            100% { transform: rotateY(360deg); }
+        }
+
 
         /* --- STYLES --- */
         #loader {
@@ -127,6 +133,26 @@
         .cursor { display: inline-block; width: 8px; height: 12px; background: var(--dim); margin-left: 5px; animation: blink 0.8s step-start infinite; }
         @keyframes blink { 50% { opacity: 0; } }
 
+        /* Conteneur pour gérer le centrage et la perspective 3D */
+        .star-container {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+            perspective: 500px;
+        }
+        
+        /* L'étoile en elle-même */
+        .y2k-star {
+            width: 35px;
+            height: 35px;
+            background-color: #ffffff;
+            /* Découpe de la forme 4 branches */
+            clip-path: polygon(50% 0%, 61% 35%, 100% 50%, 61% 65%, 50% 100%, 39% 65%, 0% 50%, 39% 35%);
+            /* Animation de rotation */
+            animation: starRotate 3s infinite linear;
+            box-shadow: 0 0 15px rgba(255,255,255,0.4);
+        }
+
     </style>
 </head>
 <body>
@@ -156,6 +182,9 @@
         <footer>
             > SYSTEM_STATUS: OK<br>
             > (C) ALL RIGHTS RESERVED <span class="cursor"></span>
+            <div class="star-container">
+                <div class="y2k-star"></div>
+            </div>
         </footer>
     </div>
 
